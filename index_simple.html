@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Forms Dashboard Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4285f4;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status-offline {
+            background: #fee;
+            color: #c53030;
+        }
+
+        .status-online {
+            background: #f0fff4;
+            color: #38a169;
+        }
+
+        .status-syncing {
+            background: #fffbeb;
+            color: #d97706;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .tabs-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            background: #f3f4f6;
+            color: #4285f4;
+        }
+
+        .tab-btn.active {
+            background: #4285f4;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4285f4;
+            box-shadow: 0 0 0 4px rgba(66, 133, 244, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4285f4 0%, #3367d6 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(66, 133, 244, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #34a853 0%, #2d8e47 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(52, 168, 83, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ea4335 0%, #d33b2c 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(234, 67, 53, 0.4);
+        }
+
+        .btn-outline {
+            background: white;
+            color: #4285f4;
+            border: 2px solid #4285f4;
+        }
+
+        .btn-outline:hover {
+            background: #4285f4;
+            color: white;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .file-upload-area {
+            border: 3px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .file-upload-area:hover {
+            border-color: #4285f4;
+            background: #eff6ff;
+        }
+
+        .file-upload-area.dragover {
+            border-color: #4285f4;
+            background: #dbeafe;
+        }
+
+        .file-upload-area i {
+            font-size: 3rem;
+            color: #94a3b8;
+            margin-bottom: 15px;
+        }
+
+        .file-upload-area p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #cbd5e1;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #475569;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 1001;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+        .toast.info { background: #3b82f6; }
+        .toast.warning { background: #f59e0b; }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fab fa-google"></i>
+                <h1>Google Forms Dashboard Pro</h1>
+            </div>
+            <div class="connection-status status-offline" id="connectionStatus">
+                <i class="fas fa-circle"></i>
+                <span>Modo Offline</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('forms')">
+                <i class="fas fa-clipboard-list"></i> Mis Formularios
+            </button>
+            <button class="tab-btn" onclick="switchTab('connect')">
+                <i class="fas fa-plug"></i> Conectar
+            </button>
+            <button class="tab-btn" onclick="switchTab('import')">
+                <i class="fas fa-file-csv"></i> Importar CSV
+            </button>
+        </div>
+
+        <!-- Tab: Mis Formularios -->
+        <div id="tab-forms" class="tab-content active">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-plus-circle"></i> Agregar Formulario</h2>
+                
+                <div class="form-group">
+                    <label for="formName">Nombre del Formulario</label>
+                    <input type="text" id="formName" placeholder="Ej: Encuesta de Satisfacción">
+                </div>
+
+                <div class="form-group">
+                    <label for="formUrl">URL del Formulario de Google</label>
+                    <input type="url" id="formUrl" placeholder="https://docs.google.com/forms/d/e/.../viewform">
+                    <div class="help-text">Pega la URL completa de tu formulario de Google Forms</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="formDescription">Descripción (opcional)</label>
+                    <textarea id="formDescription" placeholder="Describe brevemente tu formulario..."></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="addForm()">
+                        <i class="fas fa-plus"></i> Agregar Formulario
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadSampleData()">
+                        <i class="fas fa-play"></i> Cargar Ejemplos
+                    </button>
+                    <button class="btn btn-danger" onclick="clearAllForms()">
+                        <i class="fas fa-trash"></i> Limpiar Todo
+                    </button>
+                </div>
+            </div>
+
+            <div class="card" id="formsListCard">
+                <h2 class="card-title"><i class="fas fa-list"></i> Tus Formularios</h2>
+                <div id="formsContainer">
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>No hay formularios aún</h3>
+                        <p>Agrega tus formularios manualmente o conecta con Google para sincronizar</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Conectar -->
+        <div id="tab-connect" class="tab-content">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-plug"></i> Conectar con Google Forms</h2>
+                
+                <div class="form-group">
+                    <label for="appsScriptUrl">URL del Script de Google Apps</label>
+                    <input type="url" id="appsScriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
+                    <div class="help-text">URL de tu aplicación web de Google Apps Script</div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="saveScriptUrl()">
+                        <i class="fas fa-save"></i> Guardar URL
+                    </button>
+                    <button class="btn btn-secondary" onclick="testConnection()">
+                        <i class="fas fa-sync"></i> Probar Conexión
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Importar CSV -->
+        <div id="tab-import" class="tab-content">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-file-upload"></i> Importar desde CSV</h2>
+                
+                <div class="file-upload-area" id="dropZone" onclick="document.getElementById('csvFile').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p><strong>Arrastra tu archivo CSV aquí</strong></p>
+                    <p>o haz clic para seleccionar</p>
+                    <input type="file" id="csvFile" class="file-input" accept=".csv" onchange="handleFileSelect(event)">
+                </div>
+
+                <div id="fileInfo" style="display: none; margin-top: 20px; padding: 15px; background: #f0fff4; border-radius: 10px;">
+                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                    <span id="fileName"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p id="loadingText">Cargando...</p>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Variables globales
+        let forms = [];
+        let currentData = [];
+        let scriptUrl = '';
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFromStorage();
+            updateUI();
+            setupDragAndDrop();
+        });
+
+        // Tabs
+        function switchTab(tabName) {
+            // Actualizar botones
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.tab-btn').classList.add('active');
+
+            // Actualizar contenido
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // Almacenamiento local
+        function loadFromStorage() {
+            try {
+                const savedForms = localStorage.getItem('gf_forms');
+                const savedData = localStorage.getItem('gf_data');
+                const savedScriptUrl = localStorage.getItem('gf_script_url');
+
+                if (savedForms) forms = JSON.parse(savedForms);
+                if (savedData) currentData = JSON.parse(savedData);
+                if (savedScriptUrl) {
+                    scriptUrl = savedScriptUrl;
+                    document.getElementById('appsScriptUrl').value = scriptUrl;
+                }
+            } catch (error) {
+                console.error('Error loading from storage:', error);
+            }
+        }
+
+        function saveToStorage() {
+            try {
+                localStorage.setItem('gf_forms', JSON.stringify(forms));
+                localStorage.setItem('gf_data', JSON.stringify(currentData));
+                localStorage.setItem('gf_script_url', scriptUrl);
+            } catch (error) {
+                console.error('Error saving to storage:', error);
+            }
+        }
+
+        // Gestión de formularios
+        function addForm() {
+            const name = document.getElementById('formName').value.trim();
+            const url = document.getElementById('formUrl').value.trim();
+            const description = document.getElementById('formDescription').value.trim();
+
+            if (!name || !url) {
+                showToast('Por favor completa el nombre y la URL del formulario', 'error');
+                return;
+            }
+
+            if (!url.includes('docs.google.com/forms')) {
+                showToast('Por favor ingresa una URL válida de Google Forms', 'error');
+                return;
+            }
+
+            const form = {
+                id: Date.now().toString(),
+                name: name,
+                url: url,
+                description: description || 'Sin descripción',
+                createdDate: new Date().toISOString(),
+                lastModified: new Date().toISOString(),
+                responseCount: 0
+            };
+
+            forms.push(form);
+            saveToStorage();
+            updateUI();
+            clearFormInputs();
+            showToast('Formulario agregado correctamente', 'success');
+        }
+
+        function deleteForm(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este formulario?')) {
+                forms = forms.filter(f => f.id !== id);
+                saveToStorage();
+                updateUI();
+                showToast('Formulario eliminado', 'success');
+            }
+        }
+
+        function clearFormInputs() {
+            document.getElementById('formName').value = '';
+            document.getElementById('formUrl').value = '';
+            document.getElementById('formDescription').value = '';
+        }
+
+        function clearAllForms() {
+            if (confirm('¿Estás seguro de que quieres eliminar TODOS los formularios?')) {
+                forms = [];
+                saveToStorage();
+                updateUI();
+                showToast('Todos los formularios han sido eliminados', 'success');
+            }
+        }
+
+        function openForm(url) {
+            window.open(url, '_blank');
+        }
+
+        // Datos de ejemplo
+        function loadSampleData() {
+            const sampleForms = [
+                {
+                    id: '1',
+                    name: 'Encuesta de Satisfacción del Cliente',
+                    url: 'https://docs.google.com/forms/d/e/sample1/viewform',
+                    description: 'Evalúa la satisfacción de nuestros clientes',
+                    createdDate: new Date(Date.now() - 86400000).toISOString(),
+                    lastModified: new Date(Date.now() - 86400000).toISOString(),
+                    responseCount: 45
+                },
+                {
+                    id: '2',
+                    name: 'Formulario de Registro de Eventos',
+                    url: 'https://docs.google.com/forms/d/e/sample2/viewform',
+                    description: 'Registro para participantes del evento anual',
+                    createdDate: new Date(Date.now() - 172800000).toISOString(),
+                    lastModified: new Date(Date.now() - 172800000).toISOString(),
+                    responseCount: 128
+                }
+            ];
+
+            forms = sampleForms;
+            saveToStorage();
+            updateUI();
+            showToast('Datos de ejemplo cargados correctamente', 'success');
+        }
+
+        // Importar CSV
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].name.endsWith('.csv')) {
+                    processCSVFile(files[0]);
+                } else {
+                    showToast('Por favor arrastra un archivo CSV válido', 'error');
+                }
+            });
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (!file.name.toLowerCase().endsWith('.csv')) {
+                    showToast('Por favor selecciona un archivo CSV válido', 'error');
+                    event.target.value = '';
+                    return;
+                }
+                
+                if (file.size > 10 * 1024 * 1024) {
+                    showToast('El archivo es demasiado grande. Máximo 10MB', 'error');
+                    event.target.value = '';
+                    return;
+                }
+                
+                processCSVFile(file);
+            }
+        }
+
+        function processCSVFile(file) {
+            showLoading('Procesando archivo CSV...');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const csvText = e.target.result;
+                    
+                    if (!csvText || csvText.trim().length === 0) {
+                        throw new Error('El archivo CSV está vacío');
+                    }
+                    
+                    const data = parseCSV(csvText);
+                    
+                    if (!data || data.length === 0) {
+                        throw new Error('No se pudieron procesar los datos del CSV');
+                    }
+                    
+                    currentData = data;
+                    saveToStorage();
+                    
+                    document.getElementById('fileName').textContent = file.name + ' (' + data.length + ' registros)';
+                    document.getElementById('fileInfo').style.display = 'block';
+                    
+                    showLoading(false);
+                    showToast('CSV importado: ' + data.length + ' registros', 'success');
+                    
+                } catch (error) {
+                    showLoading(false);
+                    console.error('CSV Processing Error:', error);
+                    showToast('Error al procesar el CSV: ' + error.message, 'error');
+                    document.getElementById('fileInfo').style.display = 'none';
+                    document.getElementById('csvFile').value = '';
+                }
+            };
+            
+            reader.onerror = function() {
+                showLoading(false);
+                showToast('Error al leer el archivo. Intenta nuevamente.', 'error');
+                document.getElementById('csvFile').value = '';
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function parseCSV(csvText) {
+            try {
+                const lines = csvText.split('\n').filter(line => line.trim());
+                if (lines.length < 2) throw new Error('El archivo CSV debe contener al menos encabezados y una fila de datos');
+
+                const firstLine = lines[0];
+                const delimiter = firstLine.includes('\t') ? '\t' : 
+                                 firstLine.includes(';') ? ';' : ',';
+                
+                const headers = parseCSVLine(firstLine, delimiter);
+                
+                if (headers.length === 0 || headers.every(h => !h || h.trim() === '')) {
+                    throw new Error('Los encabezados del CSV no son válidos');
+                }
+                
+                const data = [];
+                let emptyRows = 0;
+
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) {
+                        emptyRows++;
+                        continue;
+                    }
+                    
+                    const values = parseCSVLine(line, delimiter);
+                    
+                    if (values.every(v => !v || v.trim() === '')) {
+                        emptyRows++;
+                        continue;
+                    }
+                    
+                    if (values.length !== headers.length) {
+                        console.warn('Row ' + (i + 1) + ' has different column count than headers');
+                        while (values.length < headers.length) {
+                            values.push('');
+                        }
+                        if (values.length > headers.length) {
+                            values.splice(headers.length);
+                        }
+                    }
+                    
+                    const row = {};
+                    headers.forEach((header, index) => {
+                        row[header] = values[index] || '';
+                    });
+                    data.push(row);
+                }
+                
+                if (data.length === 0) {
+                    throw new Error('No se encontraron filas de datos válidas en el CSV');
+                }
+                
+                return data;
+            } catch (error) {
+                throw new Error('Error al parsear CSV: ' + error.message);
+            }
+        }
+
+        function parseCSVLine(line, delimiter) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                const nextChar = line[i + 1];
+
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === delimiter && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+
+        // Conexión con Google Apps Script
+        function saveScriptUrl() {
+            const url = document.getElementById('appsScriptUrl').value.trim();
+            if (!url) {
+                showToast('Por favor ingresa la URL del script', 'error');
+                return;
+            }
+            
+            if (!url.includes('script.google.com')) {
+                showToast('Por favor ingresa una URL válida de Google Apps Script', 'error');
+                return;
+            }
+
+            scriptUrl = url;
+            saveToStorage();
+            showToast('URL guardada correctamente', 'success');
+            updateConnectionStatus('online');
+        }
+
+        function testConnection() {
+            if (!scriptUrl) {
+                showToast('Primero guarda la URL del script', 'error');
+                return;
+            }
+
+            showLoading('Probando conexión...');
+            updateConnectionStatus('syncing');
+            
+            setTimeout(() => {
+                updateConnectionStatus('online');
+                showLoading(false);
+                showToast('Conexión establecida con Google Forms', 'success');
+            }, 2000);
+        }
+
+        function updateConnectionStatus(status) {
+            const el = document.getElementById('connectionStatus');
+            if (!el) {
+                console.error('Connection status element not found');
+                return;
+            }
+            
+            try {
+                el.className = 'connection-status';
+                
+                if (status === 'online') {
+                    el.classList.add('status-online');
+                    el.innerHTML = '<i class="fas fa-circle"></i><span>Conectado</span>';
+                } else if (status === 'syncing') {
+                    el.classList.add('status-syncing');
+                    el.innerHTML = '<i class="fas fa-sync fa-spin"></i><span>Sincronizando...</span>';
+                } else {
+                    el.classList.add('status-offline');
+                    el.innerHTML = '<i class="fas fa-circle"></i><span>Modo Offline</span>';
+                }
+                
+                el.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    el.style.transform = 'scale(1)';
+                }, 200);
+                
+            } catch (error) {
+                console.error('Error updating connection status:', error);
+            }
+        }
+
+        // Utilidades
+        function updateUI() {
+            updateFormsList();
+            updateConnectionStatus(scriptUrl ? 'online' : 'offline');
+        }
+
+        function updateFormsList() {
+            const container = document.getElementById('formsContainer');
+            
+            try {
+                if (forms.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-clipboard-list"></i><h3>No hay formularios aún</h3><p>Agrega tus formularios manualmente o conecta con Google para sincronizar</p></div>';
+                    return;
+                }
+
+                const sortedForms = forms.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
+                
+                container.innerHTML = '<div class="forms-grid">' + 
+                    sortedForms.map(function(form) {
+                        const formName = form.name || 'Formulario sin nombre';
+                        const formDesc = form.description || 'Sin descripción';
+                        const formUrl = form.url || '#';
+                        const responseCount = form.responseCount || 0;
+                        const createdDate = form.createdDate || new Date().toISOString();
+                        
+                        return '<div style="background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); margin-bottom: 20px; border: 2px solid transparent; position: relative;">' +
+                            '<button onclick="deleteForm(\'' + form.id + '\')" style="position: absolute; top: 15px; right: 15px; background: #fee; color: #dc2626; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Eliminar formulario">' +
+                                '<i class="fas fa-trash"></i>' +
+                            '</button>' +
+                            '<div style="margin-bottom: 15px;">' +
+                                '<div>' +
+                                    '<div style="font-size: 1.2rem; font-weight: 600; color: #1e293b; margin-bottom: 8px;">' + formName + '</div>' +
+                                    '<div style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px;">' + formDesc + '</div>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div style="display: flex; gap: 15px; font-size: 0.85rem; color: #94a3b8; margin-bottom: 15px;">' +
+                                '<span><i class="fas fa-calendar"></i> ' + formatDate(createdDate) + '</span>' +
+                                '<span><i class="fas fa-users"></i> ' + responseCount + ' respuestas</span>' +
+                            '</div>' +
+                            '<div style="display: flex; gap: 10px;">' +
+                                '<button class="btn btn-primary" onclick="openForm(\'' + formUrl + '\')" style="padding: 10px 18px; font-size: 0.9rem; flex: 1; justify-content: center;" title="Abrir formulario">' +
+                                    '<i class="fas fa-external-link-alt"></i> Abrir' +
+                                '</button>' +
+                                '<button class="btn btn-outline" onclick="alert(\'Sincronización simulada\')" style="padding: 10px 18px; font-size: 0.9rem; flex: 1; justify-content: center;" title="Sincronizar datos">' +
+                                    '<i class="fas fa-sync"></i> Sincronizar' +
+                                '</button>' +
+                            '</div>' +
+                        '</div>';
+                    }).join('') + 
+                '</div>';
+                
+            } catch (error) {
+                console.error('Error updating forms list:', error);
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error al cargar formularios</h3><p>Intenta recargar la página</p></div>';
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            } catch {
+                return dateString;
+            }
+        }
+
+        function showLoading(show, text) {
+            const overlay = document.getElementById('loadingOverlay');
+            const loadingText = document.getElementById('loadingText');
+            
+            if (show) {
+                if (text) loadingText.textContent = text;
+                overlay.classList.add('active');
+            } else {
+                overlay.classList.remove('active');
+            }
+        }
+
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = '<i class="fas fa-' + (type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle') + '"></i><span>' + message + '</span>';
+            toast.className = 'toast ' + type + ' show';
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
